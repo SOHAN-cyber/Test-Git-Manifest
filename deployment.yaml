@@ -1,10 +1,10 @@
 apiVersion: "apps/v1"
 kind: "Deployment"
 metadata:
-  name: "frontend"
+  name: "test"
   namespace: "dev"
   labels:
-    app: "frontend"
+    app: "test"
   annotations:
     timestamp: "20230123T130111"
     deployment_number: "$19"
@@ -20,19 +20,19 @@ spec:
   progressDeadlineSeconds: 600
   selector:
     matchLabels:
-      app: "frontend"
+      app: "test"
   template:
     metadata:
       labels:
-        app: "frontend"
+        app: "test"
     spec:
-      serviceAccountName: "frontend"
+      serviceAccountName: "test"
       terminationGracePeriodSeconds: 30
       imagePullSecrets:
         - name: "ot-nexus-regcred"
       containers:
-        - name: "frontend"
-          image: "registry.buildpiper.in/ot-micro-frontend-stage:${BP_IMAGE_TAG}"
+        - name: "test"
+          image: "registry.buildpiper.in/ot-micro-frontend-stage:${BP_IMAGE_TAG}ss"
           imagePullPolicy: "Always"
           ports:
             - containerPort: 8080
@@ -45,3 +45,20 @@ spec:
             requests:
               cpu: "100m"
               memory: "100Mi"
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: "test"
+  namespace: "dev"
+  labels:
+    app: "test"
+spec:
+  type: "ClusterIP"
+  ports:
+    - protocol: "TCP"
+      port: 8080
+      targetPort: 8080
+      name: "ot-emp-ui"
+  selector:
+    app: "test"
