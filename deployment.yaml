@@ -1,0 +1,47 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "frontend"
+  namespace: "dev"
+  labels:
+    app: "frontend"
+  annotations:
+    timestamp: "20230123T130111"
+    deployment_number: "$19"
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: "100%"
+      maxUnavailable: "5%"
+    type: "RollingUpdate"
+  minReadySeconds: 0
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+  selector:
+    matchLabels:
+      app: "frontend"
+  template:
+    metadata:
+      labels:
+        app: "frontend"
+    spec:
+      serviceAccountName: "frontend"
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: "ot-nexus-regcred"
+      containers:
+        - name: "frontend"
+          image: "registry.buildpiper.in/ot-micro-frontend-stage:${BP_IMAGE_TAG}"
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 8080
+              protocol: "TCP"
+              name: "ot-emp-ui"
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "100Mi"
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
